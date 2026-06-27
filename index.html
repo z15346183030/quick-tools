@@ -448,7 +448,8 @@ function clearDiff() {
   document.getElementById('diff-out').textContent = '等待对比...';
   document.getElementById('diff-stats').innerHTML = '';
 }
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;'); }
+function escapeHtml(s) { return esc(s); }
 
 // ========== Base64 ==========
 function b64Encode() {

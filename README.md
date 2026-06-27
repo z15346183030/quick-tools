@@ -1,51 +1,52 @@
-# 极简工具箱 - 免费在线工具站
+# 极简工具箱
 
-## 包含工具
-- JSON 格式化 / 压缩 / 校验
-- 文本对比（逐行 diff）
-- Base64 编解码
-- 时间戳转换
-- 正则表达式实时测试
-- Markdown 实时预览
-- 颜色转换（HEX/RGB/HSL）
-- 字数统计
+纯前端在线工具集合，单文件实现，零依赖。
 
-## 特点
-- 纯前端，零后端，免费部署
-- 暗色主题，现代 UI
-- 移动端适配
-- SEO 友好
-- 数据不上传，隐私安全
+## 工具列表
 
-## 部署方式（任选一个，全部免费）
+| 工具 | 说明 |
+|------|------|
+| JSON 格式化 | 格式化、压缩、校验 JSON 数据 |
+| 文本对比 | 逐行 diff，高亮新增/删除 |
+| Base64 编解码 | 文本与 Base64 互转 |
+| 时间戳转换 | Unix 时间戳与日期互转 |
+| 正则测试 | 实时正则表达式匹配 |
+| Markdown 预览 | 实时渲染 Markdown |
+| 颜色转换 | HEX / RGB / HSL 互转 |
+| 字数统计 | 字数、字符、行数、段落、阅读时间 |
 
-### 1. Vercel（推荐）
-1. 注册 https://vercel.com
-2. 把这个文件夹拖进去
-3. 自动部署，得到一个 `.vercel.app` 域名
+## 技术栈
 
-### 2. Netlify
-1. 注册 https://netlify.com
-2. 拖拽文件夹部署
-3. 得到 `.netlify.app` 域名
+- 纯 HTML / CSS / JavaScript，无框架依赖
+- 单文件部署（`index.html`）
+- 暗色主题，响应式布局，移动端适配
+- 数据本地处理，不上传服务器
 
-### 3. GitHub Pages
-1. 上传到 GitHub 仓库
-2. Settings → Pages → 选择 main 分支
-3. 得到 `username.github.io/repo` 域名
+## 部署
 
-## 赚钱方式
+任意静态托管平台均可：
 
-### 方式一：自己运营
-- 部署后提交给百度/Google 收录
-- 挂 Google AdSense 广告
-- 流量起来后被动收入
+```bash
+# Vercel
+npx vercel --prod
 
-### 方式二：当作品接单
-- 拿这个站展示给客户看
-- 报价 800-2000 做一个类似的工具站
-- 客户需求我来写，你负责交付
+# Netlify
+netlify deploy --prod --dir .
 
-### 方式三：卖源码
-- 挂闲鱼/淘宝，定价 50-200
-- 一次写好，反复卖
+# GitHub Pages
+# 推送到 GitHub 仓库后在 Settings > Pages 中启用
+```
+
+## 本地运行
+
+直接在浏览器中打开 `index.html`，或使用任意 HTTP 服务器：
+
+```bash
+python -m http.server 8080
+# 访问 http://localhost:8080
+```
+
+## 安全说明
+
+- 所有用户输入在拼接 innerHTML 前经过 `esc()` 转义（`&`, `<`, `>`, `"`, `'`）
+- 纯前端运行，无后端接口，无第三方请求
