@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>极简工具箱 - 免费在线实用工具</title>
+<meta name="description" content="免费在线工具箱：JSON格式化、文本对比、Base64编解码、时间戳转换、正则测试、Markdown预览等，即开即用。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠</text></svg>">
+<style>
+:root {
+  --bg: #0f0f0f;
+  --card: #1a1a1a;
+  --border: #2a2a2a;
+  --text: #e0e0e0;
+  --muted: #888;
+  --accent: #4f8cff;
+  --accent-hover: #6fa0ff;
+  --success: #4caf50;
+  --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 48px 20px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4f8cff, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.header p { color: var(--muted); font-size: 1rem; }
+
+/* Nav */
+.nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.nav-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.nav-btn:hover, .nav-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Tool Container */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+.tool { display: none; }
+.tool.active { display: block; }
+.tool-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.tool-desc {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+/* Editor */
+.editor-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+@media (max-width: 600px) {
+  .editor-group { grid-template-columns: 1fr; }
+}
+textarea, .output-box {
+  width: 100%;
+  min-height: 260px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+textarea:focus { border-color: var(--accent); }
+.output-box {
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-y: auto;
+}
+label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--success);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 999;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* Single input tools */
+.input-group { margin-bottom: 12px; }
+.input-group input, .input-group select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+.input-group input:focus { border-color: var(--accent); }
+
+/* Stats bar */
+.stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+.stats span { color: var(--muted); }
+.stats strong { color: var(--accent); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🛠 极简工具箱</h1>
+  <p>免费 · 即开即用 · 无需注册</p>
+</div>
+
+<div class="nav" id="nav"></div>
+
+<div class="container" id="tools"></div>
+
+<div class="footer">© 2026 极简工具箱 | 纯前端运行，数据不上传</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== Tool Definitions ==========
+const tools = [
+  {
+    id: 'json',
+    name: 'JSON 格式化',
+    desc: '格式化、压缩、校验 JSON 数据',
+    html: `
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="jsonFormat()">格式化</button>
+        <button class="btn btn-outline" onclick="jsonMinify()">压缩</button>
+        <button class="btn btn-outline" onclick="jsonValidate()">校验</button>
+        <button class="btn btn-outline" onclick="copyOutput('json-out')">复制结果</button>
+      </div>
+      <div class="editor-group">
+        <div><label>输入 JSON</label><textarea id="json-in" placeholder='{"name":"test","items":[1,2,3]}'></textarea></div>
+        <div><label>输出</label><div class="output-box" id="json-out">等待输入...</div></div>
+      </div>
+    `
+  },
+  {
+    id: 'diff',
+    name: '文本对比',
+    desc: '逐行对比两段文本，高亮差异',
+    html: `
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="textDiff()">对比</button>
+        <button class="btn btn-outline" onclick="clearDiff()">清空</button>
+      </div>
+      <div class="editor-group">
+        <div><label>文本 A</label><textarea id="diff-a" placeholder="粘贴第一段文本..."></textarea></div>
+        <div><label>文本 B</label><textarea id="diff-b" placeholder="粘贴第二段文本..."></textarea></div>
+      </div>
+      <div class="stats" id="diff-stats"></div>
+      <label>差异结果</label>
+      <div class="output-box" id="diff-out" style="min-height:180px">等待对比...</div>
+    `
+  },
+  {
+    id: 'base64',
+    name: 'Base64 编解码',
+    desc: '文本与 Base64 互相转换',
+    html: `
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="b64Encode()">编码</button>
+        <button class="btn btn-outline" onclick="b64Decode()">解码</button>
+        <button class="btn btn-outline" onclick="copyOutput('b64-out')">复制结果</button>
+      </div>
+      <div class="editor-group">
+        <div><label>输入</label><textarea id="b64-in" placeholder="输入文本或 Base64..."></textarea></div>
+        <div><label>输出</label><div class="output-box" id="b64-out">等待输入...</div></div>
+      </div>
+    `
+  },
+  {
+    id: 'timestamp',
+    name: '时间戳转换',
+    desc: 'Unix 时间戳与日期互转',
+    html: `
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="tsToDate()">时间戳 → 日期</button>
+        <button class="btn btn-outline" onclick="dateToTs()">日期 → 时间戳</button>
+      </div>
+      <div class="input-group">
+        <label>时间戳（秒/毫秒自动识别）</label>
+        <input id="ts-in" placeholder="1700000000" />
+      </div>
+      <div class="input-group">
+        <label>日期时间</label>
+        <input id="ts-date" type="datetime-local" />
+      </div>
+      <div class="output-box" id="ts-out" style="min-height:80px">当前时间戳：<strong id="ts-now"></strong></div>
+    `
+  },
+  {
+    id: 'regex',
+    name: '正则测试',
+    desc: '实时测试正则表达式匹配结果',
+    html: `
+      <div class="input-group">
+        <label>正则表达式</label>
+        <input id="regex-pattern" placeholder="\\d+" oninput="regexTest()" />
+      </div>
+      <div class="btn-row">
+        <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="regex-g" checked> 全局(g)</label>
+        <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="regex-i"> 忽略大小写(i)</label>
+        <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="regex-m"> 多行(m)</label>
+      </div>
+      <div class="editor-group">
+        <div><label>测试文本</label><textarea id="regex-text" oninput="regexTest()" placeholder="输入要匹配的文本..."></textarea></div>
+        <div><label>匹配结果</label><div class="output-box" id="regex-out">等待输入...</div></div>
+      </div>
+    `
+  },
+  {
+    id: 'md',
+    name: 'Markdown 预览',
+    desc: '实时渲染 Markdown 文本',
+    html: `
+      <div class="editor-group">
+        <div><label>Markdown</label><textarea id="md-in" oninput="mdRender()" placeholder="# 标题\n\n正文内容..."></textarea></div>
+        <div><label>预览</label><div class="output-box" id="md-out" style="font-family:sans-serif;line-height:1.8">等待输入...</div></div>
+      </div>
+    `
+  },
+  {
+    id: 'color',
+    name: '颜色转换',
+    desc: 'HEX / RGB / HSL 互转',
+    html: `
+      <div class="input-group">
+        <label>输入颜色值（如 #4f8cff、rgb(79,140,255)、hsl(217,100%,66%)）</label>
+        <input id="color-in" placeholder="#4f8cff" oninput="colorConvert()" />
+      </div>
+      <div class="btn-row">
+        <input type="color" id="color-picker" value="#4f8cff" onchange="document.getElementById('color-in').value=this.value;colorConvert()" style="width:48px;height:38px;border:none;cursor:pointer;border-radius:8px" />
+      </div>
+      <div class="output-box" id="color-out" style="min-height:100px">等待输入...</div>
+    `
+  },
+  {
+    id: 'wordcount',
+    name: '字数统计',
+    desc: '统计字数、字符数、行数、段落数',
+    html: `
+      <div class="stats" id="wc-stats">
+        <span>字数 <strong id="wc-chars">0</strong></span>
+        <span>字符(含空格) <strong id="wc-total">0</strong></span>
+        <span>行数 <strong id="wc-lines">0</strong></span>
+        <span>段落 <strong id="wc-para">0</strong></span>
+        <span>阅读时间 <strong id="wc-time">0 分钟</strong></span>
+      </div>
+      <textarea id="wc-in" oninput="wordCount()" placeholder="粘贴或输入文本..." style="min-height:300px"></textarea>
+    `
+  }
+];
+
+// ========== Render ==========
+const nav = document.getElementById('nav');
+const container = document.getElementById('tools');
+
+tools.forEach((t, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'nav-btn' + (i === 0 ? ' active' : '');
+  btn.textContent = t.name;
+  btn.onclick = () => switchTool(t.id);
+  nav.appendChild(btn);
+
+  const div = document.createElement('div');
+  div.className = 'tool' + (i === 0 ? ' active' : '');
+  div.id = 'tool-' + t.id;
+  div.innerHTML = `<div class="tool-title">${t.name}</div><div class="tool-desc">${t.desc}</div>${t.html}`;
+  container.appendChild(div);
+});
+
+function switchTool(id) {
+  document.querySelectorAll('.tool').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tool-' + id).classList.add('active');
+  const idx = tools.findIndex(t => t.id === id);
+  nav.children[idx].classList.add('active');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function copyOutput(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => toast('已复制'));
+}
+
+// ========== JSON ==========
+function jsonFormat() {
+  try {
+    const obj = JSON.parse(document.getElementById('json-in').value);
+    document.getElementById('json-out').textContent = JSON.stringify(obj, null, 2);
+  } catch (e) { document.getElementById('json-out').textContent = '❌ ' + e.message; }
+}
+function jsonMinify() {
+  try {
+    const obj = JSON.parse(document.getElementById('json-in').value);
+    document.getElementById('json-out').textContent = JSON.stringify(obj);
+  } catch (e) { document.getElementById('json-out').textContent = '❌ ' + e.message; }
+}
+function jsonValidate() {
+  try {
+    JSON.parse(document.getElementById('json-in').value);
+    document.getElementById('json-out').textContent = '✅ JSON 格式正确';
+  } catch (e) { document.getElementById('json-out').textContent = '❌ ' + e.message; }
+}
+
+// ========== Diff ==========
+function textDiff() {
+  const a = document.getElementById('diff-a').value.split('\n');
+  const b = document.getElementById('diff-b').value.split('\n');
+  const max = Math.max(a.length, b.length);
+  let html = '', added = 0, removed = 0, same = 0;
+  for (let i = 0; i < max; i++) {
+    const la = a[i] ?? '', lb = b[i] ?? '';
+    if (la === lb) { html += `  ${esc(la)}\n`; same++; }
+    else {
+      if (la) { html += `<span style="color:#ff6b6b">- ${esc(la)}</span>\n`; removed++; }
+      if (lb) { html += `<span style="color:#51cf66">+ ${esc(lb)}</span>\n`; added++; }
+    }
+  }
+  document.getElementById('diff-out').innerHTML = html;
+  document.getElementById('diff-stats').innerHTML =
+    `<span>相同 <strong>${same}</strong></span><span style="color:#51cf66">新增 <strong>${added}</strong></span><span style="color:#ff6b6b">删除 <strong>${removed}</strong></span>`;
+}
+function clearDiff() {
+  document.getElementById('diff-a').value = '';
+  document.getElementById('diff-b').value = '';
+  document.getElementById('diff-out').textContent = '等待对比...';
+  document.getElementById('diff-stats').innerHTML = '';
+}
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ========== Base64 ==========
+function b64Encode() {
+  try {
+    document.getElementById('b64-out').textContent = btoa(unescape(encodeURIComponent(document.getElementById('b64-in').value)));
+  } catch (e) { document.getElementById('b64-out').textContent = '❌ ' + e.message; }
+}
+function b64Decode() {
+  try {
+    document.getElementById('b64-out').textContent = decodeURIComponent(escape(atob(document.getElementById('b64-in').value.trim())));
+  } catch (e) { document.getElementById('b64-out').textContent = '❌ ' + e.message; }
+}
+
+// ========== Timestamp ==========
+function tsToDate() {
+  let ts = document.getElementById('ts-in').value.trim();
+  if (!ts) return;
+  if (ts.length <= 10) ts = parseInt(ts) * 1000;
+  const d = new Date(parseInt(ts));
+  document.getElementById('ts-out').innerHTML =
+    `本地时间：${d.toLocaleString('zh-CN')}<br>ISO：${d.toISOString()}<br>时间戳(秒)：${Math.floor(d.getTime()/1000)}`;
+  document.getElementById('ts-date').value = d.toISOString().slice(0,16);
+}
+function dateToTs() {
+  const v = document.getElementById('ts-date').value;
+  if (!v) return;
+  const d = new Date(v);
+  document.getElementById('ts-out').innerHTML =
+    `时间戳(秒)：<strong>${Math.floor(d.getTime()/1000)}</strong><br>时间戳(毫秒)：<strong>${d.getTime()}</strong>`;
+  document.getElementById('ts-in').value = Math.floor(d.getTime()/1000);
+}
+setInterval(() => {
+  const el = document.getElementById('ts-now');
+  if (el) el.textContent = Math.floor(Date.now()/1000);
+}, 1000);
+
+// ========== Regex ==========
+function regexTest() {
+  const p = document.getElementById('regex-pattern').value;
+  const t = document.getElementById('regex-text').value;
+  if (!p || !t) { document.getElementById('regex-out').textContent = '等待输入...'; return; }
+  try {
+    let flags = '';
+    if (document.getElementById('regex-g').checked) flags += 'g';
+    if (document.getElementById('regex-i').checked) flags += 'i';
+    if (document.getElementById('regex-m').checked) flags += 'm';
+    const re = new RegExp(p, flags);
+    const matches = [...t.matchAll(new RegExp(p, flags.includes('g') ? flags : flags + 'g'))];
+    if (!matches.length) { document.getElementById('regex-out').textContent = '无匹配'; return; }
+    let html = `找到 ${matches.length} 个匹配：\n\n`;
+    matches.forEach((m, i) => {
+      html += `<span style="color:var(--accent)">[${i}]</span> "${esc(m[0])}"  位置: ${m.index}\n`;
+      if (m.length > 1) {
+        for (let j = 1; j < m.length; j++) html += `    组${j}: "${esc(m[j] ?? '')}"\n`;
+      }
+    });
+    document.getElementById('regex-out').innerHTML = html;
+  } catch (e) { document.getElementById('regex-out').textContent = '❌ ' + e.message; }
+}
+
+// ========== Markdown ==========
+function mdRender() {
+  const md = document.getElementById('md-in').value;
+  let html = esc(md)
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 style="font-size:1.5em">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code style="background:#333;padding:2px 6px;border-radius:4px">$1</code>')
+    .replace(/^[-*] (.+)$/gm, '• $1')
+    .replace(/\n/g, '<br>');
+  document.getElementById('md-out').innerHTML = html;
+}
+
+// ========== Color ==========
+function colorConvert() {
+  const v = document.getElementById('color-in').value.trim();
+  if (!v) return;
+  let r, g, b;
+  const hex = v.match(/^#?([0-9a-f]{6})$/i);
+  const rgb = v.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+  if (hex) {
+    const c = hex[1];
+    r = parseInt(c.slice(0,2),16); g = parseInt(c.slice(2,4),16); b = parseInt(c.slice(4,6),16);
+  } else if (rgb) {
+    [, r, g, b] = rgb.map(Number);
+  } else { document.getElementById('color-out').textContent = '无法解析'; return; }
+  const hexStr = '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
+  const max = Math.max(r,g,b)/255, min = Math.min(r,g,b)/255;
+  const l = (max+min)/2;
+  document.getElementById('color-picker').value = hexStr;
+  document.getElementById('color-out').innerHTML =
+    `<div style="width:60px;height:60px;border-radius:8px;background:${hexStr};margin-bottom:12px;border:1px solid var(--border)"></div>
+    HEX: <strong>${hexStr}</strong><br>
+    RGB: <strong>rgb(${r}, ${g}, ${b})</strong><br>
+    HSL: 计算中...`;
+}
+
+// ========== Word Count ==========
+function wordCount() {
+  const t = document.getElementById('wc-in').value;
+  const chars = t.replace(/\s/g, '').length;
+  const total = t.length;
+  const lines = t ? t.split('\n').length : 0;
+  const para = t ? t.split(/\n\s*\n/).filter(s => s.trim()).length : 0;
+  const time = Math.max(1, Math.ceil(chars / 500));
+  document.getElementById('wc-chars').textContent = chars;
+  document.getElementById('wc-total').textContent = total;
+  document.getElementById('wc-lines').textContent = lines;
+  document.getElementById('wc-para').textContent = para;
+  document.getElementById('wc-time').textContent = time + ' 分钟';
+}
+</script>
+</body>
+</html>
